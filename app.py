@@ -157,21 +157,32 @@ def tobs():
 
     return jsonify(temp_list)
   
+@app.route("/api/v1.0/<start>")
 @app.route("/api/v1.0/<start>/<end>")
-def calc_temps(start, end):
+def calc_temps(start=None, end=None):
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
+    if not end:
 
-    # Design a query to show how many stations are available in this dataset?
+    
+    #  Design a query to show how many stations are available in this dataset?
+        date_query = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start).all()
+        session.close()
+        variable=list(np.ravel(date_query))
+        # function usage example
+        return  jsonify(variable)
+    
     date_query = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-    filter(Measurement.date >= start).filter(Measurement.date <= end).all()
-    print(date_query)
+        filter(Measurement.date >= start).filter(Measurement.date <= end).all()
 
     session.close()
+    
+    variable=list(np.ravel(date_query))
     # function usage example
-    return  
-    jsonify(date_query)
+    return  jsonify(variable)
 
+   
 if __name__ == '__main__':
     app.run(debug=True)
